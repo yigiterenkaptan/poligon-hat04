@@ -739,56 +739,122 @@ function updatePlates(dt){
 }
 
 /* ================= GUN ================= */
+const MAG_BASE=new THREE.Vector3(0,0,0),MAG_DOWN=new THREE.Vector3(0,-.954,.3);
+function sideExtrude(pts,width,bevel,holes){
+  const mk=(P)=>{const sh=new THREE.Shape();sh.moveTo(P[0][0],P[0][1]);for(let i=1;i<P.length;i++){const q=P[i];if(q.length===4)sh.quadraticCurveTo(q[0],q[1],q[2],q[3]);else sh.lineTo(q[0],q[1]);}return sh;};
+  const sh=mk(pts);
+  if(holes)holes.forEach(h=>{const hp=new THREE.Path();hp.moveTo(h[0][0],h[0][1]);for(let i=1;i<h.length;i++){const q=h[i];if(q.length===4)hp.quadraticCurveTo(q[0],q[1],q[2],q[3]);else hp.lineTo(q[0],q[1]);}sh.holes.push(hp);});
+  const depth=Math.max(.0005,width-2*bevel);
+  const g=new THREE.ExtrudeGeometry(sh,{depth,bevelEnabled:bevel>0,bevelThickness:bevel,bevelSize:bevel*.8,bevelSegments:3,curveSegments:12});
+  g.rotateY(-Math.PI/2);g.translate(depth/2,0,0);return g;
+}
 function buildGun(){
   gun=new THREE.Group();vmScene.add(gun);
-  vmScene.add(new THREE.HemisphereLight(0xd6e0ea,0x1d1a16,.75));
-  const dl=new THREE.DirectionalLight(0xffffff,.9);dl.position.set(.4,1,.6);vmScene.add(dl);
+  // studio-style environment so metal and polymer pick up believable reflections
+  const pm=new THREE.PMREMGenerator(renderer),env=new THREE.Scene();
+  env.add(new THREE.Mesh(new THREE.BoxGeometry(10,6,10),new THREE.MeshBasicMaterial({color:0x272c31,side:THREE.BackSide})));
+  const panel=(w,h,x,y,z,c,rx,ry)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:c,side:THREE.DoubleSide}));m.position.set(x,y,z);m.rotation.set(rx||0,ry||0,0);env.add(m);};
+  panel(7,.5,0,2.9,.5,0xffffff,Math.PI/2);panel(7,.5,0,2.9,-2,0xfff1dc,Math.PI/2);panel(3,1.4,-4.9,1.2,0,0x8c98a2,0,Math.PI/2);panel(5,1.6,0,.8,-4.9,0x56626c);panel(2.5,1,4.9,1.6,1,0xc9d2d8,0,-Math.PI/2);
+  const ef=new THREE.Mesh(new THREE.PlaneGeometry(10,10),new THREE.MeshBasicMaterial({color:0x101214}));ef.rotation.x=-Math.PI/2;ef.position.y=-2.9;env.add(ef);
+  vmScene.environment=pm.fromScene(env,.04).texture;pm.dispose();
+  vmScene.add(new THREE.HemisphereLight(0xd6e0ea,0x1d1a16,.45));
+  const dl=new THREE.DirectionalLight(0xfff6ea,.85);dl.position.set(.5,1,.7);vmScene.add(dl);
+  const rim=new THREE.DirectionalLight(0x9fb4c8,.35);rim.position.set(-.6,.4,-1);vmScene.add(rim);
   vmFlash=new THREE.PointLight(0xffb060,0,1.4,2);vmFlash.position.set(0,-.01,-.45);vmScene.add(vmFlash);
-  const poly=new THREE.MeshStandardMaterial({color:0x1d2023,roughness:.62,metalness:.08});
-  const steel=new THREE.MeshStandardMaterial({color:0x2c3034,roughness:.3,metalness:.85});
-  const black=new THREE.MeshStandardMaterial({color:0x0c0d0e,roughness:.5,metalness:.3});
-  const glove=new THREE.MeshStandardMaterial({color:0x272b29,roughness:.92});
-  const sleeve=new THREE.MeshStandardMaterial({color:0x323a40,roughness:.95});
+
+  const stip=texFrom(paint(128,128,(g,w,h)=>{g.fillStyle='#808080';g.fillRect(0,0,w,h);speckle(g,w,h,2600,['#3a3a3a','#d0d0d0','#606060'],1,2,1);}),1,1);
+  stip.repeat.set(70,70);
+  const slideM=new THREE.MeshStandardMaterial({color:0x2b2e32,roughness:.36,metalness:.8});
+  const barrelM=new THREE.MeshStandardMaterial({color:0x6a6e70,roughness:.28,metalness:.9});
+  const polyM=new THREE.MeshStandardMaterial({color:0x1d1f21,roughness:.62,metalness:0});
+  const gripM=new THREE.MeshStandardMaterial({color:0x1b1d1f,roughness:.85,metalness:0,bumpMap:stip,bumpScale:.0006});
+  const darkM=new THREE.MeshStandardMaterial({color:0x0d0e0f,roughness:.55,metalness:.4});
+  const gloveM=new THREE.MeshStandardMaterial({color:0x2e312c,roughness:.88,metalness:0,side:THREE.DoubleSide});
+  const glovePad=new THREE.MeshStandardMaterial({color:0x1e201d,roughness:.7,metalness:0});
+  const cuffM=new THREE.MeshStandardMaterial({color:0x232622,roughness:.9});
+  const sleeveM=new THREE.MeshStandardMaterial({color:0x37404a,roughness:.95});
   const dotW=new THREE.MeshBasicMaterial({color:0xf3f0e2}),dotA=new THREE.MeshBasicMaterial({color:0xffb21a});
   const B=(w,h,d,mat,x,y,z,parent)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);(parent||gun).add(m);return m;};
+  const C=(r,len,mat,x,y,z,parent,seg)=>{const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,seg||16),mat);m.rotation.x=Math.PI/2;m.position.set(x,y,z);(parent||gun).add(m);return m;};
+
+  // ---- slide (moves on recoil)
   slide=new THREE.Group();gun.add(slide);
-  B(.028,.03,.19,steel,0,-.015,0,slide);
-  for(let i=0;i<6;i++)B(.0292,.02,.0018,black,0,-.016,.052+i*.0062,slide);
-  B(.002,.011,.032,black,.0141,-.008,-.012,slide);
-  const crown=new THREE.Mesh(new THREE.CylinderGeometry(.0068,.0068,.004,14),black);crown.rotation.x=Math.PI/2;crown.position.set(0,-.017,-.0965);slide.add(crown);
-  B(.004,.007,.006,black,0,.0035,-.088,slide);
-  B(.0022,.0022,.0006,dotA,0,.0042,-.0848,slide);
-  B(.018,.004,.008,black,0,.002,.084,slide);
-  [-1,1].forEach(s=>{B(.0045,.008,.008,black,s*.0068,.004,.084,slide);B(.0018,.0018,.0006,dotW,s*.0068,.0043,.0883,slide);});
-  B(.026,.022,.17,poly,0,-.041,-.008);
-  B(.02,.006,.06,poly,0,-.054,-.06);
-  B(.008,.004,.05,poly,0,-.074,-.022);
-  B(.008,.022,.004,poly,0,-.063,-.047);
-  const trig=B(.004,.016,.0045,black,0,-.061,-.014);trig.rotation.x=.3;
-  const grip=new THREE.Group();grip.position.set(0,-.05,.05);grip.rotation.x=-.3;gun.add(grip);
-  B(.029,.11,.05,poly,0,-.055,0,grip);
-  magGroup=new THREE.Group();grip.add(magGroup);
-  B(.031,.012,.054,poly,0,-.114,0,magGroup);
-  B(.022,.1,.034,steel,0,-.06,-.004,magGroup);
-  B(.052,.072,.074,glove,.004,-.058,.006,grip);
-  B(.016,.06,.08,glove,-.03,-.06,.012,grip);
-  B(.012,.014,.058,glove,-.019,-.042,-.012);
-  const arm=new THREE.Mesh(new THREE.CylinderGeometry(.036,.042,.42,10),sleeve);arm.rotation.x=-.93;arm.position.set(.006,-.29,.25);gun.add(arm);
+  slide.add(new THREE.Mesh(sideExtrude([[-.0935,-.0285],[.0935,-.0285],[.0935,-.0035],[.0905,-.0012],[-.083,-.0012],[-.0935,-.0085]],.0285,.0015),slideM));
+  for(let i=0;i<7;i++)[-1,1].forEach(sx=>B(.0008,.019,.0015,darkM,sx*.0146,-.0155,.056+i*.0052,slide));
+  for(let i=0;i<4;i++)[-1,1].forEach(sx=>B(.0008,.016,.0013,darkM,sx*.0146,-.017,-.078+i*.005,slide));
+  B(.0035,.011,.03,darkM,.0128,-.0065,-.008,slide);
+  B(.0115,.0016,.027,barrelM,.0035,-.0007,-.008,slide);
+  B(.0012,.003,.012,darkM,.0147,-.0055,.012,slide);
+  C(.0058,.003,barrelM,0,-.0165,-.0952,slide);C(.0042,.0032,darkM,0,-.0165,-.0955,slide);
+  B(.0038,.0072,.007,darkM,0,.0036,-.087,slide);B(.0022,.0022,.0006,dotA,0,.0043,-.0833,slide);
+  B(.02,.0045,.009,darkM,0,.0018,.083,slide);
+  [-1,1].forEach(sx=>{B(.0055,.006,.009,darkM,sx*.0068,.0055,.083,slide);B(.0018,.0018,.0006,dotW,sx*.0068,.0058,.0877,slide);});
+
+  // ---- frame, rail, trigger guard, trigger
+  gun.add(new THREE.Mesh(sideExtrude([[-.086,-.029],[.088,-.029],[.088,-.045],[.012,-.047],[-.04,-.047],[-.086,-.041]],.026,.002),polyM));
+  for(let i=0;i<3;i++)B(.02,.003,.0055,darkM,0,-.0485,-.079+i*.011);
+  C(.0034,.012,darkM,0,-.0355,-.087);
+  gun.add(new THREE.Mesh(sideExtrude(
+    [[-.04,-.044],[.016,-.044],[.016,-.08],[-.045,-.08],[-.061,-.08,-.06,-.064],[-.056,-.05],[-.054,-.044,-.046,-.044]],.0095,.0015,
+    [[[-.046,-.049],[.011,-.049],[.011,-.075],[-.042,-.075],[-.054,-.075,-.053,-.064],[-.05,-.052],[-.049,-.049,-.046,-.049]]]),polyM));
+  gun.add(new THREE.Mesh(sideExtrude([[-.016,-.047],[-.011,-.047],[-.008,-.06,-.014,-.071],[-.018,-.07],[-.013,-.06,-.016,-.047]],.005,.0008),darkM));
+  B(.002,.0045,.03,darkM,-.0142,-.033,-.012);
+  B(.002,.006,.008,darkM,-.0142,-.04,-.045);
+
+  // ---- grip with finger grooves and beavertail, stippled
+  const gp=[[.010,-.046],[.080,-.033],[.096,-.031,.095,-.040],[.086,-.050],[.110,-.148],[.112,-.155,.105,-.155],[.050,-.155]];
+  const F=[[.048,-.155],[.0395,-.128],[.031,-.101],[.0225,-.074],[.012,-.048]];
+  for(let i=1;i<F.length;i++){const a=F[i-1],b=F[i];gp.push([(a[0]+b[0])/2-.0055,(a[1]+b[1])/2,b[0],b[1]]);}
+  gun.add(new THREE.Mesh(sideExtrude(gp,.03,.004),gripM));
+  magGroup=new THREE.Group();magGroup.position.set(.08,-.158,0);magGroup.rotation.x=-.305;gun.add(magGroup);
+  MAG_BASE.copy(magGroup.position);
+  B(.034,.008,.066,polyM,0,0,.002,magGroup);
+  B(.022,.1,.032,slideM,0,.052,-.002,magGroup);
+
+  // ---- hands (gloved, two-handed grip)
+  const V=(a)=>new THREE.Vector3(a[0],a[1],a[2]),UP=new THREE.Vector3(0,1,0);
+  const seg=(a,b,r1,r2,mat)=>{const A=V(a),Bv=V(b),len=A.distanceTo(Bv);const m=new THREE.Mesh(new THREE.CylinderGeometry(r2,r1,len,12),mat);m.position.copy(A).add(Bv).multiplyScalar(.5);m.quaternion.setFromUnitVectors(UP,Bv.clone().sub(A).normalize());gun.add(m);const j=new THREE.Mesh(new THREE.SphereGeometry(r2,12,10),mat);j.position.copy(Bv);gun.add(j);return m;};
+  const chain=(pts,radii,mat)=>{const j0=new THREE.Mesh(new THREE.SphereGeometry(radii[0],12,10),mat);j0.position.copy(V(pts[0]));gun.add(j0);for(let i=1;i<pts.length;i++)seg(pts[i-1],pts[i],radii[i-1],radii[i],mat);};
+  const blob=(c,r,mat,rot)=>{const m=new THREE.Mesh(new THREE.SphereGeometry(1,20,14),mat);m.scale.set(r[0],r[1],r[2]);m.position.set(c[0],c[1],c[2]);if(rot)m.rotation.set(rot[0],rot[1],rot[2]);gun.add(m);return m;};
+  const frontZ=y=>{const t=(y+.155)/.107;return .048-.036*t;};
+  const curl=(y,R,tube,mirror,arc,mat,zOff)=>{const m=new THREE.Mesh(new THREE.TorusGeometry(R,tube,10,24,arc),mat);m.rotation.set(-Math.PI/2-.305,0,0);if(mirror)m.scale.x=-1;m.position.set(0,y,frontZ(y)+R+zOff);gun.add(m);
+    const tip=new THREE.Mesh(new THREE.SphereGeometry(tube*.95,10,8),mat);const ang=arc;tip.position.set(Math.cos(ang)*R,Math.sin(ang)*R,0);m.add(tip);return m;};
+  // firing hand: three fingers under the guard, index on the trigger, thumb high on the left
+  [[-.089,.021,.0086,1.05],[-.110,.0205,.0083,1.02],[-.130,.0185,.0074,.98]].forEach(f=>curl(f[0],f[1],f[2],false,Math.PI*f[3],gloveM,-.0035));
+  blob([.024,-.103,.088],[.021,.054,.04],gloveM,[-.305,0,0]);
+  blob([.009,-.118,.114],[.026,.045,.022],gloveM,[-.305,0,0]);
+  blob([.034,-.082,.058],[.008,.014,.02],glovePad,[-.305,0,0]);
+  chain([[.02,-.058,.036],[.017,-.0595,.006],[.006,-.0635,-.011],[-.001,-.0685,-.0135]],[.0098,.0084,.0076,.0068],gloveM);
+  chain([[.013,-.051,.086],[-.012,-.047,.056],[-.0225,-.0452,.021],[-.0225,-.0442,-.011]],[.0118,.0102,.0092,.0078],gloveM);
+  // support hand: palm on the left panel, fingers over the firing hand, thumb forward along the frame
+  [[-.087,.031,.0089,.95],[-.107,.0305,.0088,.95],[-.127,.029,.0084,.92],[-.145,.026,.0074,.85]].forEach(f=>curl(f[0],f[1],f[2],true,Math.PI*f[3],gloveM,-.0125));
+  blob([-.035,-.104,.058],[.02,.054,.046],gloveM,[-.305,0,.1]);
+  blob([-.05,-.098,.04],[.008,.03,.03],glovePad,[-.305,0,.1]);
+  chain([[-.034,-.074,.046],[-.029,-.059,.012],[-.025,-.0535,-.024],[-.0228,-.0515,-.046]],[.0118,.0102,.0090,.0076],gloveM);
+  // wrists and sleeves
+  seg([.03,-.142,.124],[.045,-.18,.168],.029,.032,cuffM);
+  seg([.045,-.18,.168],[.11,-.36,.42],.037,.05,sleeveM);
+  seg([-.045,-.142,.088],[-.07,-.18,.138],.029,.032,cuffM);
+  seg([-.07,-.18,.138],[-.17,-.36,.40],.037,.05,sleeveM);
+
   const flashTex=texFrom(paint(128,128,(g,w,h)=>{const gr=g.createRadialGradient(64,64,0,64,64,64);gr.addColorStop(0,'rgba(255,255,240,1)');gr.addColorStop(.25,'rgba(255,200,110,.9)');gr.addColorStop(1,'rgba(255,120,30,0)');g.fillStyle=gr;g.fillRect(0,0,w,h);g.fillStyle='rgba(255,230,170,.9)';for(let i=0;i<6;i++){g.save();g.translate(64,64);g.rotate(i*Math.PI/3);g.beginPath();g.moveTo(0,-4);g.lineTo(62,0);g.lineTo(0,4);g.fill();g.restore();}}));
   flashSprite=new THREE.Sprite(new THREE.SpriteMaterial({map:flashTex,blending:THREE.AdditiveBlending,depthWrite:false,transparent:true}));
-  flashSprite.position.set(0,-.017,-.13);flashSprite.scale.set(.1,.1,.1);flashSprite.visible=false;gun.add(flashSprite);
+  flashSprite.position.set(0,-.0165,-.125);flashSprite.scale.set(.1,.1,.1);flashSprite.visible=false;gun.add(flashSprite);
 }
-function updateGunPose(){
+let lagX=0,lagY=0;
+function updateGunPose(dt){
   const e=ease(adsT);
+  lagX*=Math.exp(-dt*9);lagY*=Math.exp(-dt*9);
   let gx=lerp(hipX,0,e),gy=lerp(-.118,-.007,e),gz=lerp(-.3,-.235,e);
   let rx=0,ry=lerp(.055,0,e),rz=lerp(-.02,0,e);
   gy+=Math.sin(clock*1.6)*.0012*(1-e);
+  const lk=lerp(1,.45,e);ry+=lagX*lk;rx+=lagY*lk;gx-=lagX*.04*lk;gy+=lagY*.03*lk;rz+=lagX*.5*lk;
   gz+=recoil*lerp(.045,.028,e);rx+=recoil*lerp(.24,.11,e);gy+=recoil*lerp(.008,.004,e);
-  let magY=0,magVis=true;
+  let drop=0,magVis=true;
   if(reloading){const p=clamp(reloadT/RELOAD_TIME,0,1),k=Math.sin(p*Math.PI);gy-=k*.06;gx-=k*.015;rx+=k*.28;rz+=k*.5;
-    if(p<.14)magY=0;else if(p<.36)magY=-(p-.14)/.22*.22;else if(p<.56)magVis=false;else if(p<.74)magY=-.16*(1-(p-.56)/.18);}
+    if(p<.14)drop=0;else if(p<.36)drop=(p-.14)/.22*.22;else if(p<.56)magVis=false;else if(p<.74)drop=.16*(1-(p-.56)/.18);}
   gun.position.set(gx,gy,gz);gun.rotation.set(rx,ry,rz);
-  magGroup.position.y=magY;magGroup.visible=magVis;
+  magGroup.position.copy(MAG_BASE).addScaledVector(MAG_DOWN,drop);magGroup.visible=magVis;
   slide.position.z=slideLocked?.026:(slideT<.08?Math.sin(slideT/.08*Math.PI)*.03:0);
 }
 
@@ -1101,11 +1167,11 @@ function update(dt){
   const e=ease(adsT);
   camera.fov=baseFov*lerp(1,ADS_RATIO,e);camera.updateProjectionMatrix();
   let sx=0,sy=0;
-  if(active){const amp=lerp(.0042,.0015,e);sx=(Math.sin(clock*.71)*.6+Math.sin(clock*1.43+1.3)*.4)*amp;sy=(Math.sin(clock*.93+.4)*.6+Math.sin(clock*1.77)*.4)*amp*.8;}
+  if(active){const amp=lerp(.005,.0023,e),tr=lerp(.00018,.00032,e);sx=(Math.sin(clock*.71)*.6+Math.sin(clock*1.43+1.3)*.4)*amp+(Math.sin(clock*7.3)+Math.sin(clock*11.9+2)*.6)*tr;sy=(Math.sin(clock*.93+.4)*.6+Math.sin(clock*1.77)*.4)*amp*.85+(Math.sin(clock*8.7+1)+Math.sin(clock*13.1)*.6)*tr;}
   yaw=clamp(yaw,-1.1,1.1);pitch=clamp(pitch,-.45,.38);
   camera.rotation.set(pitch+sy,yaw+sx,0);camera.updateMatrixWorld();
   if(!paused){updateMovers(dt);updatePlates(dt);updateFx(dt);}
-  if(phase!=='menu'&&phase!=='results'){updateGunPose();updateHudFrame();}
+  if(phase!=='menu'&&phase!=='results'){updateGunPose(dt);updateHudFrame();}
 }
 function resize(){
   const w=window.innerWidth,h=window.innerHeight,asp=w/Math.max(1,h);
@@ -1123,7 +1189,7 @@ function applyQuality(){
 let locked=false,wasLocked=false,lastTouchMs=0;
 function requestLock(){if(touchMode)return;try{const p=canvas.requestPointerLock&&canvas.requestPointerLock();if(p&&p.catch)p.catch(()=>{});}catch(e){}}
 function exitLock(){try{if(document.pointerLockElement)document.exitPointerLock();}catch(e){}}
-function look(dx,dy,base){const s=base*settings.sens*(camera.fov/baseFov);yaw-=dx*s;pitch-=dy*s;yaw=clamp(yaw,-1.1,1.1);pitch=clamp(pitch,-.45,.38);}
+function look(dx,dy,base){const s=base*settings.sens*(camera.fov/baseFov);yaw-=dx*s;pitch-=dy*s;lagX=clamp(lagX+dx*s*.35,-.06,.06);lagY=clamp(lagY+dy*s*.35,-.05,.05);yaw=clamp(yaw,-1.1,1.1);pitch=clamp(pitch,-.45,.38);}
 const canAim=()=>(phase==='playing'||phase==='countdown')&&!paused;
 
 function bindInput(){
