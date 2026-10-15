@@ -294,29 +294,29 @@ body.touch .hud-bl{display:none}
   <section class="screen" id="menu">
     <div class="menu-wrap">
       <header class="brand">
-        <div class="eyebrow">Kapalı atış alanı · 50 m · 5 hat</div>
+        <div class="eyebrow">3D atış poligonu</div>
         <h1>Poligon<span>Hat 04</span></h1>
-        <p class="lede">9 mm tabancayla üç disiplin. Kâğıt hedefte ondalık skor, çelikte tepki süresi, raylı hedefte seri. Disiplini seç, hatta gir.</p>
+        <p class="lede">Modunu seç, hatta gir.</p>
         <div class="spec"><span>9×19 mm</span><span>ŞARJÖR 12</span><span>NİŞAN ×2,3</span><span>HEDEF 84 cm</span></div>
         <div class="rotate-hint"><i></i>Telefonu yatay çevir, görüş alanı genişler</div>
         <div class="boot-error" id="bootError" hidden>3D motoru yüklenemedi. Bağlantını kontrol edip sayfayı yenile.</div>
       </header>
 
       <div class="modes">
-        <div class="modes-head"><span>DİSİPLİN SEÇ</span><span>REKOR</span></div>
+        <div class="modes-head"><span>MOD SEÇ</span><span>REKOR</span></div>
         <button class="mode" data-mode="precision">
           <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="32" r="21" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="32" r="13" style="fill:currentColor"/><circle cx="32" cy="32" r="5" fill="none" style="stroke:var(--bg)" stroke-width="2"/><circle cx="35" cy="29" r="2.4" style="fill:var(--accent)"/></svg>
-          <span><span class="mode-name">Hassas Atış</span><span class="mode-desc">10, 25 ve 40 metrede üç kâğıt hedef. Süre yok, acele yok. Her atış ondalık halka puanı alır, grup çapı ölçülür.</span><span class="mode-tag">20 FİŞEK · ONDALIK SKOR · ×1 / ×2 / ×3</span></span>
+          <span><span class="mode-name">Hassas Atış</span><span class="mode-desc">Üç mesafede kâğıt hedef. Süre yok, isabet önemli.</span><span class="mode-tag">20 FİŞEK · 10 / 25 / 40 m</span></span>
           <span class="mode-best"><small>REKOR</small><b data-best="precision">—</b></span>
         </button>
         <button class="mode" data-mode="reflex">
           <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="22" r="16" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="22" r="6" style="fill:var(--accent)"/><path d="M32 38v18M20 58h24" fill="none" stroke="currentColor" stroke-width="2"/></svg>
-          <span><span class="mode-name">Refleks</span><span class="mode-desc">Çelik plakalar rastgele kalkar ve kısa süre ayakta kalır. Ne kadar hızlı düşürürsen o kadar puan. Kaçan plaka puan götürür.</span><span class="mode-tag">45 SN · ÇELİK PLAKA · TEPKİ BONUSU</span></span>
+          <span><span class="mode-name">Refleks</span><span class="mode-desc">Kalkan çelik plakaları hızlıca düşür.</span><span class="mode-tag">45 SANİYE</span></span>
           <span class="mode-best"><small>REKOR</small><b data-best="reflex">—</b></span>
         </button>
         <button class="mode" data-mode="moving">
           <svg viewBox="0 0 64 64" aria-hidden="true"><path d="M6 10h52" fill="none" stroke="currentColor" stroke-width="2"/><rect x="18" y="18" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="32" r="8" style="fill:currentColor"/><path d="M50 32h10m-4-4 4 4-4 4M14 32H4m4-4-4 4 4 4" fill="none" style="stroke:var(--accent)" stroke-width="2"/></svg>
-          <span><span class="mode-name">Hareketli Hedef</span><span class="mode-desc">Raylarda farklı hız ve mesafede kayan dört hedef. Ardışık isabetler çarpanı ×3'e kadar çıkarır, ıska seriyi sıfırlar.</span><span class="mode-tag">60 SN · 4 RAY · SERİ ÇARPANI</span></span>
+          <span><span class="mode-name">Hareketli Hedef</span><span class="mode-desc">Kayan hedefleri vur, seriyi bozma.</span><span class="mode-tag">60 SANİYE</span></span>
           <span class="mode-best"><small>REKOR</small><b data-best="moving">—</b></span>
         </button>
       </div>
@@ -332,15 +332,15 @@ body.touch .hud-bl{display:none}
           <dl class="keys keys-desktop">
             <dt>FARE</dt><dd>Nişan al</dd>
             <dt>SOL TIK</dt><dd>Ateş et</dd>
-            <dt>SAĞ TIK</dt><dd>Basılı tut, gez-arpacıktan nişan al</dd>
+            <dt>SAĞ TIK</dt><dd>Nişangâh</dd>
             <dt>R</dt><dd>Şarjör değiştir</dd>
             <dt>ESC</dt><dd>Duraklat</dd>
           </dl>
           <dl class="keys keys-touch">
-            <dt>SÜRÜKLE</dt><dd>Ekranın boş yerinde parmağını kaydırarak nişan al</dd>
-            <dt>ATEŞ</dt><dd>Tetik. Basılı tutup kaydırırsan nişanı da düzeltirsin</dd>
-            <dt>NİŞAN</dt><dd>Gez-arpacık görüşünü açar, kapatır</dd>
-            <dt>ŞARJÖR</dt><dd>Şarjör değiştirir</dd>
+            <dt>KAYDIR</dt><dd>Nişan al</dd>
+            <dt>ATEŞ</dt><dd>Ateş et</dd>
+            <dt>NİŞAN</dt><dd>Nişangâh</dd>
+            <dt>ŞARJÖR</dt><dd>Şarjör değiştir</dd>
           </dl>
         </div>
       </div>
@@ -871,7 +871,7 @@ function startMode(id){
 const CD=[[0,'HAT HAZIR','Nişan al, komutu bekle','ready'],[1.0,'3','','num'],[1.6,'2','','num'],[2.2,'1','','num'],[2.8,'ATEŞ SERBEST','','go']];
 function updateCountdown(dt){
   cdT+=dt;
-  while(cdStep<CD.length&&cdT>=CD[cdStep][0]){const s=CD[cdStep];callout(s[1],s[2],s[3]);Sfx.beep(s[3]);cdStep++;}
+  while(cdStep<CD.length&&cdT>=CD[cdStep][0]){const s=CD[cdStep];callout(s[1],'',s[3]);Sfx.beep(s[3]);cdStep++;}
   if(cdT>=3.35){phase='playing';hideCallout();}
 }
 function updateGame(dt){
@@ -888,7 +888,7 @@ function endGame(){
   phase='ending';endTimer=1.6;adsHeld=false;adsToggle=false;reloading=false;
   $('#btnAds').setAttribute('aria-pressed','false');
   plates.forEach(p=>{if(p.state==='up'||p.state==='rising'){p.state='retract';p.t=0;}});
-  callout('ATEŞİ KES','Parmak tetikten','stop');Sfx.beep('stop');
+  callout('ATEŞİ KES','','stop');Sfx.beep('stop');
 }
 function showResults(){
   phase='results';paused=false;exitLock();
@@ -921,18 +921,18 @@ function computeResults(){
   if(mode==='precision'){
     const n=Math.max(1,stats.decs.length),avg=stats.decs.reduce((a,b)=>a+b,0)/n;
     const grade=avg>=10?'S':avg>=9?'A':avg>=7.5?'B':avg>=5.5?'C':'D';
-    return {scoreText:fmt1.format(score),sub:'Toplam puan · halka × mesafe çarpanı',grade,rows:[
+    return {scoreText:fmt1.format(score),sub:'Toplam puan',grade,rows:[
       ['Ortalama halka',fmt1.format(stats.decs.length?avg:0)],['İç onluk (X)',String(stats.xs)],['İsabet',pct(acc)],['Atış',stats.shots+' / '+cfg.rounds],['Süre',mm+':'+String(ss).padStart(2,'0')]]};
   }
   if(mode==='reflex'){
     const rts=stats.reactions,avg=rts.length?rts.reduce((a,b)=>a+b,0)/rts.length:0,fast=rts.length?Math.min.apply(null,rts):0;
     const grade=score>=4200?'S':score>=3000?'A':score>=2000?'B':score>=1000?'C':'D';
-    return {scoreText:fmt0.format(score),sub:'Puan · 45 saniye',grade,rows:[
+    return {scoreText:fmt0.format(score),sub:'Puan',grade,rows:[
       ['Düşen plaka',String(stats.down)],['Kaçan plaka',String(stats.escaped)],['Ort. tepki',rts.length?Math.round(avg*1000)+' ms':'—'],['En hızlı',rts.length?Math.round(fast*1000)+' ms':'—'],['İsabet',pct(acc)],['En uzun seri',String(maxCombo)]]};
   }
   const hd=stats.decs.filter(d=>d>=1),avg=hd.length?hd.reduce((a,b)=>a+b,0)/hd.length:0;
   const grade=score>=5500?'S':score>=3800?'A':score>=2400?'B':score>=1200?'C':'D';
-  return {scoreText:fmt0.format(score),sub:'Puan · 60 saniye',grade,rows:[
+  return {scoreText:fmt0.format(score),sub:'Puan',grade,rows:[
     ['İsabet',pct(acc)],['Ort. halka',hd.length?fmt1.format(avg):'—'],['İç onluk (X)',String(stats.xs)],['En uzun seri',String(maxCombo)],['Atış',String(stats.shots)]]};
 }
 function toMenu(){
