@@ -308,7 +308,7 @@ body.touch .hud-bl{display:none}
         <div class="modes-head"><span>MOD SEÇ</span><span>REKOR</span></div>
         <button class="mode" data-mode="precision">
           <svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="32" r="21" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="32" cy="32" r="13" style="fill:currentColor"/><circle cx="32" cy="32" r="5" fill="none" style="stroke:var(--bg)" stroke-width="2"/><circle cx="35" cy="29" r="2.4" style="fill:var(--accent)"/></svg>
-          <span><span class="mode-name">Hassas Atış</span><span class="mode-desc">Üç mesafede kâğıt hedef. Süre yok, isabet önemli.</span><span class="mode-tag">20 FİŞEK · 10 / 25 / 40 m</span></span>
+          <span><span class="mode-name">Hassas Atış</span><span class="mode-desc">Üç mesafede kâğıt hedef. Süre yok, isabet önemli.</span><span class="mode-tag">20 MERMİ · 10 / 25 / 40 m</span></span>
           <span class="mode-best"><small>REKOR</small><b data-best="precision">—</b></span>
         </button>
         <button class="mode" data-mode="reflex">
@@ -594,7 +594,7 @@ function buildRange(){
   [-4.75,-2.85,-.95,.95,2.85,4.75].forEach(x=>{const p=box(.05,2.2,1.7,M.partition,x,1.1,-.2);p.castShadow=true;addEnv(p,'wall');scene.add(box(.07,.03,1.72,M.alu,x,2.215,-.2));});
   const plaque=new THREE.Mesh(new THREE.PlaneGeometry(.34,.085),new THREE.MeshBasicMaterial({map:texFrom(paint(256,64,(g,w,h)=>{g.fillStyle='#0f1214';g.fillRect(0,0,w,h);g.fillStyle='#ffb21a';g.font='900 46px '+FD;g.textBaseline='middle';g.fillText('HAT 04',14,34);g.fillStyle='#8d9ba1';g.font='500 15px '+FM;g.textAlign='right';g.fillText('9×19',w-12,35);}))}));
   plaque.rotation.x=-Math.PI/2;plaque.position.set(-.5,1.0258,-.66);scene.add(plaque);
-  const ammoTop=new THREE.MeshStandardMaterial({roughness:.8,map:texFrom(paint(256,160,(g,w,h)=>{g.fillStyle='#2f3a2c';g.fillRect(0,0,w,h);g.fillStyle='#e8e2c8';g.font='900 58px '+FD;g.fillText('9×19 mm',16,70);g.font='500 17px '+FM;g.fillText('50 FİŞEK · FMJ 124 gr',16,112);g.fillStyle='#ffb21a';g.fillRect(16,128,70,6);}))});
+  const ammoTop=new THREE.MeshStandardMaterial({roughness:.8,map:texFrom(paint(256,160,(g,w,h)=>{g.fillStyle='#2f3a2c';g.fillRect(0,0,w,h);g.fillStyle='#e8e2c8';g.font='900 58px '+FD;g.fillText('9×19 mm',16,70);g.font='500 17px '+FM;g.fillText('50 MERMİ · FMJ 124 gr',16,112);g.fillStyle='#ffb21a';g.fillRect(16,128,70,6);}))});
   const ammoSide=new THREE.MeshStandardMaterial({color:0x2f3a2c,roughness:.8});
   const ammoBox=new THREE.Mesh(new THREE.BoxGeometry(.15,.045,.095),[ammoSide,ammoSide,ammoTop,ammoSide,ammoSide,ammoSide]);ammoBox.position.set(.48,1.048,-.72);ammoBox.rotation.y=-.18;ammoBox.castShadow=true;scene.add(ammoBox);
   scene.add(box(.025,.2,.26,M.steelDark,-.915,1.35,-.55));
@@ -929,7 +929,7 @@ function startMode(id){
   $('#btnAds').setAttribute('aria-pressed','false');
   $('#monitor').hidden=id==='reflex';$('#reactPanel').hidden=id!=='reflex';
   $('#hudScoreK').textContent=id==='precision'?'TOPLAM':'PUAN';
-  $('#hudTimeK').textContent=id==='precision'?'KALAN FİŞEK':'SÜRE';
+  $('#hudTimeK').textContent=id==='precision'?'KALAN MERMİ':'SÜRE';
   $('#monVal').textContent='—';$('#monVal').className='sp-val';$('#monSeries').textContent='';
   $('#rtLast').innerHTML='—';$('#rtAvg').textContent='—';$('#rtDown').textContent='0';$('#rtEsc').textContent='0';
   if(id!=='reflex')drawMonitor(activePapers[id==='precision'?1:0],null);
